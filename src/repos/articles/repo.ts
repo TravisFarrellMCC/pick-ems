@@ -24,12 +24,12 @@ export class ArticleRepo {
    */
   public async findByTeams(
     teams: string[],
-    league: string = "NFL"
+    league: string = "NFL",
   ): Promise<Article[]> {
     const articles = await this.list();
     return articles.filter(
       (article) =>
-        teams.includes(article.primaryTeam) && article.league == league
+        teams.includes(article.primaryTeam) && article.league == league,
     );
   }
 
@@ -62,7 +62,6 @@ export class ArticleRepo {
       if (!url.hostname.includes("espn.com")) {
         continue; // Skip non-ESPN articles. They tend to be ads.
       }
-
       try {
         const article = await ArticleRepo.fetchOne(url);
         articles.push(article);

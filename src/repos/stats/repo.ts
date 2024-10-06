@@ -5,7 +5,7 @@ import { Locator } from "playwright";
 const WAIT_FOR = "#fittPageContainer";
 const TEAM_NAME_COLUMN = "Team";
 const STATS_TABLE = "table"; // NOTE: Fragile and will break if ESPN ever adds more tables to the page
-const SEASON = 2023;
+const SEASON = 2024;
 
 const SOURCES: { [key in StatType]: string } = {
   [StatType.OFFENSE]: `https://www.espn.com/nfl/stats/team/_/season/${SEASON}/seasontype/2`,

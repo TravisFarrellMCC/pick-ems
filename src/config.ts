@@ -11,7 +11,7 @@ export const CONFIG = {
   OPENAI_API_KEY:
     process.env.OPENAI_API_KEY || throwRequiredEnvVar("OPENAI_API_KEY"),
   OPENAI_ORG_ID: process.env.OPENAI_ORG_ID,
-  OPENAI_MODEL: process.env.OPENAI_MODEL || "gpt-4-turbo-preview",
+  OPENAI_MODEL: process.env.OPENAI_MODEL || "gpt-4o",
   HEADLESS: process.env.HEADLESS === "true",
   VERBOSE: process.env.VERBOSE === "true",
 };
@@ -22,7 +22,7 @@ if (
   "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ) {
   throw new Error(
-    "Please set the OPENAI_API_KEY in your .env file to a non-default value."
+    "Please set the OPENAI_API_KEY in your .env file to a non-default value.",
   );
 }
 

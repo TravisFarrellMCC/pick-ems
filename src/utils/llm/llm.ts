@@ -16,7 +16,7 @@ const openai = new OpenAI({
 export async function llm<T>(
   systemPrompt: string,
   userPrompt: any,
-  toolSchema: { schema: JSONSchema; type: T }
+  toolSchema: { schema: JSONSchema; type: T },
 ): Promise<T> {
   // TODO: There is a lot going on this function. We should
   // break it up / clean it up.
@@ -54,23 +54,18 @@ export async function llm<T>(
     ],
     model: CONFIG.OPENAI_MODEL,
     temperature: 0.1,
-    max_tokens: 4000,
-    tool_choice: { type: "function", function: { name: "response" } },
-    tools: [
-      {
-        type: "function",
-        function: {
-          name: "response",
-          description: "The JSON response to the user's inquiry.",
-          parameters: schema,
-        },
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "response",
+        strict: true,
+        schema: schema,
       },
-    ],
+    },
   });
 
-  // TODO: Do better validation on the response.
-  const content =
-    response.choices[0]?.message?.tool_calls![0]?.function.arguments;
+  console.log(JSON.stringify(response.choices, null, 2));
+  const content = JSON.parse(response.choices[0]!.message.content!);
 
   if (content == null) {
     throw new Error("LLM did not return arguments to parse");
@@ -78,9 +73,9 @@ export async function llm<T>(
 
   if (CONFIG.VERBOSE) {
     console.log("\nRESPONSE:\n");
-    console.log(JSON.stringify(JSON.parse(content), null, 2));
+    console.log(JSON.stringify(content, null, 2));
     console.log("=============================================");
   }
 
-  return JSON.parse(content).conclusion as T;
+  return content.conclusion as T;
 }

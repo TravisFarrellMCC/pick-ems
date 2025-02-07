@@ -3,10 +3,10 @@
 This is an LLM agent built on top of OpenAI that predicts winners for [ESPN's
 Pick-Em's game](https://fantasy.espn.com/games/nfl-pigskin-pickem-2023).
 
-For the 2023 NFL season, this agent won my local group's pick-em's competition
-and came in the top 15% across all of ESPN's users (~one million users
-played). The top player across all of ESPN for 2023 correctly chose 195 games
-(~71%). This agent correctly chose 163 (~60%).
+For the 2024 NFL season, this agent won my local group's pick-em's competition
+and came in the top 5.5% across all of ESPN's users (~1.26 million users
+played). The top player across all of ESPN for 2023 correctly chose 212 games
+(~78%). This agent correctly chose 188 (~70%).
 
 ## How Does It Work?
 
@@ -29,7 +29,7 @@ themselves to code due to their ambiguous or difficult-to-code nature.
 The scrapers know how to retrieve:
 
 - [The list of all NFL teams.](https://www.espn.com/nfl/teams)
-- [The list of all matches for the week.](https://fantasy.espn.com/games/nfl-pigskin-pickem-2023/make-picks)
+- [The list of all matches for the week.](https://fantasy.espn.com/games/nfl-pigskin-pickem-2024/make-picks)
 - [Offense, Defense, Turnover, and Special statistics for all teams.](https://www.espn.com/nfl/stats/team)
 - [Headlines from the front page](https://www.espn.com/nfl/) and the content of the articles for those headlines.
 
@@ -120,29 +120,20 @@ Each agent is broken up into 3 parts: `Prompt`, `Schema`, `Tool`.
   or `boolean` they got back required the processing power of 1,000 remote
   GPUs.
 
-#### Analysis and Conclusions
+#### Reasoning and Test-Time Compute
 
 One other pattern we use, that may be non-obvious, is that we wrap the
-`tool`'s schema in a parent schema that has a field called `analysis` and a
-field called `conclusion`. The `conclusion` field isn't particularly notable
-and simply maps to the `tool`'s schema. The `analysis` is the notable one
-here. Importantly, The field is generated **first** by the LLM and is a way
-for the LLM to "think" out loud and reference that thinking in the subsequent
-generation of the data in the `conclusion`.
+`tool`'s schema in a parent schema that forces the LLM to a series of
+complex thinking steps. We rely on [structured
+output](https://platform.openai.com/docs/guides/structured-outputs) to enforce the
+ordering and generation of these fields.
 
-A lot of LLM techniques, like [Chain-of-Thought
-(CoT)](https://en.wikipedia.org/wiki/Prompt_engineering#Chain-of-thought)
-require that the LLM generates a sequence of tokens that it can then reference
-on for its final answer. If your `Prompt` to the `Tool` asks the LLM to use
-any strategy like this, and you don't give it a scratchpad of sorts to write
-in, then it won't be able to use that pattern. So this `analysis` field is a
-scratchpad that we offer to the LLM to write whatever it needs to before
-answering our prompt.
+This is a means to approximate the deep reasoning behavior found in reasoning
+models like DeepSeek-R1 and OpenAI's O1.
 
-tl;dr; If you ask the LLM to return `true` or `false`, and you instruct it to
-think carefully about the choice beforehand, but you don't give it space to
-do that thinking then it won't be able to and instead will just return a boolean
-without thinking carefully about it.
+You can think of it like [Chain-of-Thought
+(CoT)](https://en.wikipedia.org/wiki/Prompt_engineering#Chain-of-thought) on
+steroids.
 
 **This pattern meaningfully improves the results of the payloads.**
 

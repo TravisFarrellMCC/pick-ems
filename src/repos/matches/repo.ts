@@ -1,7 +1,8 @@
 import { Match } from "./entity";
 import { navigateTo } from "../../utils";
 
-const URL = "https://fantasy.espn.com/games/nfl-pigskin-pickem-2023/make-picks";
+const SEASON = 2024;
+const URL = `https://fantasy.espn.com/games/nfl-pigskin-pickem-${SEASON}/make-picks`;
 const WAIT_FOR = ".EntryContent";
 const MATCH_LOCATOR = ".Proposition-content";
 const TEAM_LOCATOR = ".OutcomeDetails-title";

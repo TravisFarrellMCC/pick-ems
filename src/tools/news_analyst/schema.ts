@@ -16,6 +16,7 @@ const DEFINITION = {
       description: "The league associated with the article.",
     },
   },
+  additionalProperties: false,
   required: ["summary", "primaryTeam", "league"],
 } as const satisfies JSONSchema;
 

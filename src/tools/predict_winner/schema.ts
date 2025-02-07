@@ -8,6 +8,7 @@ const DEFINITION = {
       description: "The name of the winning team.",
     },
   },
+  additionalProperties: false,
   required: ["winningTeam"],
 } as const satisfies JSONSchema;
 

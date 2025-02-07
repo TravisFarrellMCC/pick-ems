@@ -64,7 +64,6 @@ export async function llm<T>(
     },
   });
 
-  console.log(JSON.stringify(response.choices, null, 2));
   const content = JSON.parse(response.choices[0]!.message.content!);
 
   if (content == null) {

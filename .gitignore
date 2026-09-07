@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+TODO
+.vim
+presentation
+predictions
+coverage
+.DS_Store

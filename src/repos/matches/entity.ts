@@ -28,6 +28,15 @@ export class Match {
      * changed).
      */
     public homeSpread: number | null = null,
+    /**
+     * True for the one match each week that ESPN uses as the tiebreaker
+     * question ("How many total points will be scored in ___ v. ___?") —
+     * almost always the Monday night game. Used to decide which match, if
+     * any, needs a total-points prediction alongside the usual winner/
+     * spread picks. False if the tiebreaker couldn't be matched to a
+     * scraped match (e.g. the page layout changed).
+     */
+    public isTiebreaker: boolean = false,
   ) {}
 
   /**

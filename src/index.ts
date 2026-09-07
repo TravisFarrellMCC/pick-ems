@@ -1,6 +1,6 @@
 import { closeBrowser } from "./utils";
 import { recordPredictions } from "./utils/tracking";
-import { predictWinner, predictSpread } from "./tools";
+import { predictWinner, predictSpread, predictTotalPoints } from "./tools";
 import {
   MatchRepo,
   TeamRepo,
@@ -33,14 +33,21 @@ import {
     await match.gameDetails();
   }
 
-  // Predict both the straight-up winner (ESPN Pick'em style) and the
-  // against-the-spread pick (CBS Pick'em style) for each match in
-  // parallel. By this point every data source both predictors read from is
-  // already cached, so this is pure LLM calls with no further browser use.
-  const [predictions, spreadPredictions] = await Promise.all([
-    Promise.all(matches.map(predictWinner)),
-    Promise.all(matches.map(predictSpread)),
-  ]);
+  // The one match (almost always Monday night) ESPN's weekly tiebreaker
+  // question asks about — see Match.isTiebreaker for how it's identified.
+  const tiebreakerMatch = matches.find((m) => m.isTiebreaker) ?? null;
+
+  // Predict the straight-up winner (ESPN Pick'em style), the
+  // against-the-spread pick (CBS Pick'em style), and — for the tiebreaker
+  // match only — the total combined points, all in parallel. By this point
+  // every data source these predictors read from is already cached, so
+  // this is pure LLM calls with no further browser use.
+  const [predictions, spreadPredictions, totalPointsPrediction] =
+    await Promise.all([
+      Promise.all(matches.map(predictWinner)),
+      Promise.all(matches.map(predictSpread)),
+      tiebreakerMatch != null ? predictTotalPoints(tiebreakerMatch) : null,
+    ]);
 
   matches.forEach((match, i) => {
     const { winningTeam, winProbability, consensus, samples } = predictions[i]!;
@@ -69,9 +76,23 @@ import {
     }
   });
 
+  if (tiebreakerMatch != null && totalPointsPrediction != null) {
+    const { predictedTotalPoints, confidence, marketTotal } = totalPointsPrediction;
+    const marketNote =
+      marketTotal != null ? ` (market total: ${marketTotal})` : "";
+    console.log(
+      `\n${tiebreakerMatch.away} vs. ${tiebreakerMatch.home} — TIEBREAKER: ${predictedTotalPoints} total points${marketNote} (${Math.round(confidence * 100)}% confidence)`,
+    );
+  }
+
   // Record predictions so accuracy can be scored later (see `npm run
   // score`), once the games have actually been played.
-  const recordedTo = recordPredictions(matches, predictions, spreadPredictions);
+  const recordedTo = recordPredictions(
+    matches,
+    predictions,
+    spreadPredictions,
+    totalPointsPrediction,
+  );
   console.log(`\nRecorded predictions to ${recordedTo}`);
   console.log(
     "Once this week's games are played, fill in `actualWinner` for each match in that file and run `npm run score`.",

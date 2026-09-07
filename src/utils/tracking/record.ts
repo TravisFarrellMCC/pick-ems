@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import path from "path";
 import { Match } from "../../repos";
-import { Prediction, SpreadPrediction } from "../../tools";
+import { Prediction, SpreadPrediction, TotalPointsPrediction } from "../../tools";
 
 export interface PredictionRecord {
   away: string;
@@ -32,6 +32,18 @@ export interface PredictionRecord {
    * accuracy alongside straight-up accuracy.
    */
   actualAtsWinner: string | null;
+  /**
+   * Only non-null for the one match each week that's the tiebreaker
+   * question (see `Match.isTiebreaker`) — everyone else's record leaves
+   * this null. The model's predicted combined total points for that game.
+   */
+  predictedTotalPoints: number | null;
+  /**
+   * Filled in later, same as actualWinner: the actual combined final score
+   * once the tiebreaker game is played. Null until then (or forever, for
+   * every non-tiebreaker match's record).
+   */
+  actualTotalPoints: number | null;
 }
 
 const PREDICTIONS_DIR = path.join(process.cwd(), "predictions");
@@ -55,6 +67,7 @@ export function recordPredictions(
   matches: Match[],
   predictions: Prediction[],
   spreadPredictions: SpreadPrediction[],
+  totalPointsPrediction: TotalPointsPrediction | null = null,
 ): string {
   if (!existsSync(PREDICTIONS_DIR)) {
     mkdirSync(PREDICTIONS_DIR, { recursive: true });
@@ -73,6 +86,11 @@ export function recordPredictions(
     atsConfidence: spreadPredictions[i]!.confidence,
     atsWinner: spreadPredictions[i]!.atsWinner,
     actualAtsWinner: null,
+    predictedTotalPoints:
+      match.isTiebreaker && totalPointsPrediction != null
+        ? totalPointsPrediction.predictedTotalPoints
+        : null,
+    actualTotalPoints: null,
   }));
 
   const filename = `${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.json`;

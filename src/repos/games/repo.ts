@@ -1,5 +1,5 @@
 import { Locator } from "playwright";
-import { navigateTo } from "../../utils";
+import { navigateTo, parseSignedNumber } from "../../utils";
 import { Team } from "../teams";
 import { GameDetails, GameOdds, RecentGameResult, TeamOdds } from "./entity";
 
@@ -334,15 +334,6 @@ export class GameRepo {
       opponentScore: fromHome.teamScore,
     };
   }
-}
-
-function parseSignedNumber(text: string): number | null {
-  const match = text.match(/[-+]?\d+(\.\d+)?/);
-  if (match == null) {
-    return null;
-  }
-  const parsed = parseFloat(match[0]);
-  return Number.isNaN(parsed) ? null : parsed;
 }
 
 function stripOverUnderPrefix(text: string): string {

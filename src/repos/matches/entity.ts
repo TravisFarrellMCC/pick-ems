@@ -19,6 +19,15 @@ export class Match {
   constructor(
     public away: string,
     public home: string,
+    /**
+     * The home team's spread line as posted in ESPN's own "against the
+     * spread" Pick'em game mode — the actual number picks are graded
+     * against, distinct from (and not always identical to) the general
+     * market odds line from `GameRepo`/`gameDetails.odds`. Null if it
+     * couldn't be scraped (e.g. no line posted yet, or the page layout
+     * changed).
+     */
+    public homeSpread: number | null = null,
   ) {}
 
   /**

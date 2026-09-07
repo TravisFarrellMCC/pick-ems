@@ -12,9 +12,10 @@ export interface PredictionRecord {
   samples: number;
   /**
    * Filled in later, once the game has actually been played. Null until
-   * then. There's no automated way to fill this in — after the week's
-   * games finish, edit the JSON file directly and set this to the actual
-   * winning team's name (or "TIE"), then run `npm run score`.
+   * then. `npm run fetch-results` (or `npm run week`, which also runs
+   * `score`) fills this in automatically from ESPN's scoreboard once the
+   * game is final; fall back to editing the JSON file directly (the
+   * actual winning team's name, or "TIE") if a game can't be matched.
    */
   actualWinner: string | null;
   /** Null if no spread line was available at prediction time. */
@@ -25,8 +26,9 @@ export interface PredictionRecord {
   /** The team predicted to cover, null on a push or if there was no line. */
   atsWinner: string | null;
   /**
-   * Filled in later, same as actualWinner: the team that actually covered
-   * once the game is played (or "PUSH"), so `npm run score` can report ATS
+   * Filled in later, same as actualWinner (and by the same
+   * `fetch-results`/`week` scripts): the team that actually covered once
+   * the game is played (or "PUSH"), so `npm run score` can report ATS
    * accuracy alongside straight-up accuracy.
    */
   actualAtsWinner: string | null;

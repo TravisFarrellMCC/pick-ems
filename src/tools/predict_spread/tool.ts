@@ -49,7 +49,13 @@ export async function predictSpread(match: Match): Promise<SpreadPrediction> {
   );
   const result = await llm(systemPrompt, match, SCHEMA, { temperature: 0.1 });
 
-  const homeSpread = gameDetails?.odds?.home.spread ?? null;
+  // Prefer the line ESPN's own against-the-spread pool actually grades
+  // picks against (scraped in MatchRepo) over the general market odds line
+  // (scraped separately in GameRepo from a different ESPN page) — the two
+  // can differ, and only the former determines whether a pick is scored as
+  // a cover. The market line remains as a fallback for weeks it hasn't
+  // been scraped, and as supplementary context for the LLM's reasoning.
+  const homeSpread = match.homeSpread ?? gameDetails?.odds?.home.spread ?? null;
   return resolveCover(
     result.predictedHomeMargin,
     result.confidence,

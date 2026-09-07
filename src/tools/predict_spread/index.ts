@@ -1,1 +1,1 @@
-export { predictSpread, resolveCover, SpreadPrediction } from "./tool";
+export { predictSpread, resolveCover, impliedWinner, SpreadPrediction } from "./tool";

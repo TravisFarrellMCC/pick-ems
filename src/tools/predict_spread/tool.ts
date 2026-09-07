@@ -105,3 +105,28 @@ export function resolveCover(
   const atsWinner = predictedMargin > lineToBeat ? match.home : match.away;
   return { atsWinner, push: false, predictedMargin, homeSpread, confidence };
 }
+
+/**
+ * Which team a spread call's own predicted margin implies wins the game
+ * outright — independent of any spread line, unlike `atsWinner` above.
+ *
+ * `predictWinner` and `predictSpread` are separate, uncoordinated LLM
+ * calls (see predictSpread's docstring: the margin is deliberately an
+ * independent estimate, not reasoned about relative to a winner pick), so
+ * nothing stops them from disagreeing on who wins the game itself, not
+ * just on who covers. This is how a caller detects that: compare
+ * `impliedWinner(spreadPrediction.predictedMargin, match)` against
+ * `predictWinner`'s `winningTeam`.
+ *
+ * Null on an exact tie prediction (margin === 0), which doesn't imply a
+ * winner either way.
+ */
+export function impliedWinner(
+  predictedMargin: number,
+  match: Match,
+): string | null {
+  if (predictedMargin === 0) {
+    return null;
+  }
+  return predictedMargin > 0 ? match.home : match.away;
+}

@@ -1,6 +1,7 @@
 import { closeBrowser } from "./utils";
 import { recordPredictions } from "./utils/tracking";
 import { predictWinner, predictSpread, predictTotalPoints } from "./tools";
+import { impliedWinner } from "./tools/predict_spread";
 import {
   MatchRepo,
   TeamRepo,
@@ -72,6 +73,17 @@ import {
     } else {
       console.log(
         `${match.away} vs. ${match.home} — Against the Spread: ${spread.atsWinner} covers (predicted margin ${spread.predictedMargin > 0 ? "+" : ""}${spread.predictedMargin} vs. line ${spread.homeSpread > 0 ? "+" : ""}${spread.homeSpread})`,
+      );
+    }
+
+    // predictWinner and predictSpread are separate, uncoordinated LLM
+    // calls — nothing stops them from disagreeing on who wins the game
+    // itself, not just on who covers. Surface it when it happens rather
+    // than letting the two lines silently imply different outcomes.
+    const spreadImpliedWinner = impliedWinner(spread.predictedMargin, match);
+    if (spreadImpliedWinner != null && spreadImpliedWinner !== winningTeam) {
+      console.log(
+        `  ⚠ Disagreement: Head-to-Head picked ${winningTeam}, but the spread call's own margin (${spread.predictedMargin > 0 ? "+" : ""}${spread.predictedMargin}) implies ${spreadImpliedWinner} wins outright.`,
       );
     }
   });

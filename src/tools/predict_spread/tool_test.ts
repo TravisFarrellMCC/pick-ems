@@ -1,4 +1,4 @@
-import { resolveCover } from "./tool";
+import { resolveCover, impliedWinner } from "./tool";
 import { Match } from "../../repos";
 
 const match = new Match("Away Team", "Home Team");
@@ -52,4 +52,16 @@ test("returns null atsWinner with no push when there's no line to compare agains
   expect(result.push).toBe(false);
   expect(result.homeSpread).toBeNull();
   expect(result.predictedMargin).toBe(4);
+});
+
+test("impliedWinner picks the home team on a positive margin", () => {
+  expect(impliedWinner(7, match)).toBe("Home Team");
+});
+
+test("impliedWinner picks the away team on a negative margin", () => {
+  expect(impliedWinner(-7, match)).toBe("Away Team");
+});
+
+test("impliedWinner is null on an exact tie prediction", () => {
+  expect(impliedWinner(0, match)).toBeNull();
 });
